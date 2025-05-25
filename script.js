@@ -1,28 +1,25 @@
-const dino = document.getElementById("dino");
-const cactus = document.getElementById("cactus");
+async function loadRandomProblem() {
+  const res = await fetch("https://codeforces.com/api/problemset.problems");
+  const data = await res.json();
 
-document.addEventListener("keydown", function (event) {
-  if (event.code === "Space" || event.code === "ArrowUp") {
-    jump();
+  if (data.status !== "OK") {
+    document.getElementById("problem").innerText = "Failed to load problem!";
+    return;
   }
-});
 
-function jump() {
-  if (!dino.classList.contains("jump")) {
-    dino.classList.add("jump");
+  const problems = data.result.problems;
+  const randomIndex = Math.floor(Math.random() * problems.length);
+  const problem = problems[randomIndex];
 
-    setTimeout(function () {
-      dino.classList.remove("jump");
-    }, 500);
-  }
+  const contestId = problem.contestId;
+  const index = problem.index;
+  const name = problem.name;
+
+  const url = `https://codeforces.com/problemset/problem/${contestId}/${index}`;
+
+  document.getElementById("problem").innerHTML = `
+    <h2>${name}</h2>
+    <p><strong>Contest:</strong> ${contestId}, Index: ${index}</p>
+    <p><a href="${url}" target="_blank">🔗 View Problem on Codeforces</a></p>
+  `;
 }
-
-let isAlive = setInterval(function () {
-  let dinoTop = parseInt(window.getComputedStyle(dino).getPropertyValue("top"));
-  let cactusLeft = parseInt(window.getComputedStyle(cactus).getPropertyValue("left"));
-
-  if (cactusLeft < 70 && cactusLeft > 30 && dinoTop >= 140) {
-    alert("💀 Game Over!");
-    location.reload();
-  }
-}, 10);
